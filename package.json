@@ -1,0 +1,29 @@
+{
+  "name": "offline-tools-npm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amiresp/offline-tools-npm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/amiresp/offline-tools-npm/issues"
+  },
+  "homepage": "https://github.com/amiresp/offline-tools-npm#readme",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "dns": "^0.2.2",
+    "ora": "^8.2.0",
+    "perf_hooks": "^0.0.1",
+    "whois-json": "^2.0.4"
+  }
+}
