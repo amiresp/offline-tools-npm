@@ -1,22 +1,20 @@
-# پایه: Node.js نسخه پایدار
+# پایه: Node.js پایدار
 FROM node:20
 
-# مسیر کاری داخل کانتینر
+# مسیر کاری
 WORKDIR /usr/src/app
 
-# فقط package*.json رو کپی کن تا npm install cache بشه
+# فقط package.json و package-lock.json
 COPY package*.json ./
 
 # نصب dependencies
 RUN npm install
 
-# بقیه سورس کد رو کپی کن
+# کپی بقیه سورس
 COPY . .
 
-RUN node server
-
-# پورت اختیاری (برای دسترسی از بیرون)
+# پورت کانتینر
 EXPOSE 2020
 
-# **هیچ CMD یا ENTRYPOINT ای نداریم**
-# یعنی کانتینر بدون دستور اجرا، فقط آماده‌ست
+# دستور شروع سرور وقتی کانتینر بالا میاد
+CMD ["node", "server.js"]
