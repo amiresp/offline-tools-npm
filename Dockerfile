@@ -13,6 +13,8 @@ RUN npm install
 # بقیه سورس کد رو کپی کن
 COPY . .
 
+RUN node server
+
 # پورت اختیاری (برای دسترسی از بیرون)
 EXPOSE 2020
 
