@@ -1,11 +1,10 @@
-version: "3.9"
-
 services:
   nodeapp:
     build: .
     container_name: my-node-app
-    stdin_open: true    # برای interactive shell
-    tty: true           # برای نگه داشتن کانتینر alive
+    stdin_open: true
+    tty: true
     volumes:
       - .:/usr/src/app
-
+    ports:
+      - "2020:2020"
