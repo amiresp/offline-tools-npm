@@ -3,15 +3,16 @@ const whois = require('whois-json');
 
 async function getDnsRecords(domain) {
     const recordTypes = ['A', 'AAAA', 'MX', 'TXT', 'NS', 'CNAME'];
-
     const records = {};
+
     for (const type of recordTypes) {
         try {
             records[type] = await dns.resolve(domain, type);
-        } catch (e) {
+        } catch {
             records[type] = [];
         }
     }
+
     return records;
 }
 
@@ -23,37 +24,28 @@ async function getWhois(domain) {
     }
 }
 
-async function main() {
-    const domain = process.argv[2];
+module.exports = async function runWhois(domain) {
     if (!domain) {
-        console.error('Usage: node domain-info.js <domain>');
-        process.exit(1);
+        return { error: 'domain is required' };
     }
 
-    console.log(`\n⏳ Getting WHOIS for: ${domain}`);
     const whoisData = await getWhois(domain);
+    const dnsRecords = await getDnsRecords(domain);
 
-    if (whoisData.error) {
-        console.error('⚠️ WHOIS error:', whoisData.error);
-    } else {
-        console.log('🔍 WHOIS info:');
-        // چند فیلد مهم رو نشون میدیم
-        console.log({
+    return {
+        domain,
+        whois: whoisData.error ? { error: whoisData.error } : {
             registrar: whoisData.registrar || whoisData['Registrar'] || 'N/A',
             creationDate: whoisData.creationDate || whoisData['Creation Date'] || 'N/A',
             expirationDate: whoisData.expirationDate || whoisData['Registry Expiry Date'] || 'N/A',
             updatedDate: whoisData.updatedDate || whoisData['Updated Date'] || 'N/A',
             nameServers: whoisData.nameServers || whoisData['Name Server'] || [],
             status: whoisData.status || 'N/A',
-            domainName: whoisData.domainName || domain,
-            registrantCountry: whoisData.country || whoisData['Registrant Country'] || 'N/A',
-        });
-    }
-
-    console.log(`\n⏳ Getting DNS records for: ${domain}`);
-    const dnsRecords = await getDnsRecords(domain);
-    console.log('📜 DNS records:');
-    console.log(dnsRecords);
-}
-
-main();
+            registrantCountry:
+                whoisData.country ||
+                whoisData['Registrant Country'] ||
+                'N/A'
+        },
+        dns: dnsRecords
+    };
+};

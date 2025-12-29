@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Offline Tools</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    button {
+      margin-right: 10px;
+    }
+
+    pre {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🧪 Offline Tools</h2>
+
+  <button onclick="runDns()">Check DNS</button>
+  <button onclick="runNpm()">Check NPM</button>
+
+  <br><br>
+  <input id="domain" placeholder="example.com" />
+  <button onclick="runWhois()">WHOIS</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function showLoading(text = '⏳ Loading...') {
+      output.textContent = text;
+    }
+
+    function showError(err) {
+      output.textContent = `❌ Error:\n${err}`;
+    }
+
+    function showResult(data) {
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    function humanizeDnsResult(item) {
+      if (item.success) {
+        return `✅ ${item.name} (${item.ip})
+پاسخ موفق
+⏱️  ${item.time} ms`;
+      }
+
+      let reason = 'نامشخص';
+
+      if (item.error?.includes('ECONNREFUSED')) {
+        reason = 'اتصال رد شد (DNS پاسخ نداد)';
+      } else if (item.error?.includes('ETIMEOUT')) {
+        reason = 'timeout – پاسخ نرسید';
+      }
+
+      return `❌ ${item.name} (${item.ip})
+ناموفق
+⚠️  ${reason}`;
+    }
+
+
+    async function safeFetch(url) {
+      try {
+        showLoading();
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`${res.status} ${text}`);
+        }
+
+        return await res.json();
+      } catch (e) {
+        showError(e.message);
+        throw e;
+      }
+    }
+
+    async function runDns() {
+      try {
+        const data = await safeFetch('/api/dns');
+
+        const text = data
+          .map(humanizeDnsResult)
+          .join('\n\n──────────────\n\n');
+
+        output.textContent = text;
+      } catch { }
+
+      // try {
+      //   const data = await safeFetch('/api/dns');
+      //   showResult(data);
+      // } catch { }
+    }
+
+    async function runNpm() {
+      try {
+        const data = await safeFetch('/api/npm');
+        showResult(data);
+      } catch { }
+    }
+
+    async function runWhois() {
+      const domain = document.getElementById('domain').value.trim();
+      if (!domain) {
+        showError('Domain is required');
+        return;
+      }
+
+      try {
+        const data = await safeFetch(`/api/whois?domain=${domain}`);
+        showResult(data);
+      } catch { }
+    }
+  </script>
+
+
+</body>
+
+</html>
